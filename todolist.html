@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced To-Do List</title>
+    <style>
+        /* CSS for styling the to-do list */
+        body {
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150vh;
+            margin: 0;
+        }
+
+        .todo-container {
+            background: #500d0d;
+            padding: 30px;
+            box-shadow: 0px 4px 6px rgba(242, 241, 241, 0.1);
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #f9f5f5;
+        }
+
+        input {
+            padding: 10px;
+            width: 80%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #03b82a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #433811;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #7d2525;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        li.completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        li .delete-btn, li .done-btn, li .recover-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        li .done-btn {
+            background-color: #28a745;
+        }
+
+        li .recover-btn {
+            background-color: #007bff;
+        }
+
+        li .delete-btn:hover {
+            background-color: #613d40;
+        }
+
+        li .done-btn:hover {
+            background-color: #218838;
+        }
+
+        li .recover-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .deleted-tasks, .active-tasks {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="todo-container">
+        <h1> To-Do List</h1>
+        <input type="text" id="todo-input" placeholder="Add a new task">
+        <button id="add-task-btn">Add Task</button>
+        <div class="active-tasks">
+            <h3>Active Tasks</h3>
+            <ul id="todo-list"></ul>
+        </div>
+        <div class="deleted-tasks">
+            <h3>Deleted Tasks</h3>
+            <ul id="deleted-list"></ul>
+        </div>
+    </div>
+
+   <script>
+        // DOM elements
+        const input = document.getElementById("todo-input");
+        const addButton = document.getElementById("add-task-btn");
+        const todoList = document.getElementById("todo-list");
+        const deletedList = document.getElementById("deleted-list");
+
+        // Load tasks from localStorage when the page loads
+        document.addEventListener('DOMContentLoaded', loadTasks);
+
+        addButton.addEventListener("click", addTask);
+
+        function addTask() {
+            const taskText = input.value.trim();
+
+            if (taskText === "") {
+                alert("Enter a task!");
+                return;
+            }
+
+            const task = { text: taskText, completed: false, deleted: false };
+            appendTask(task, false);
+            saveTasks();  // Save tasks after adding
+            input.value = "";
+        }
+
+        // Append task to the list (active or deleted)
+        function appendTask(task, isDeleted) {
+            const newTask = document.createElement("li");
+            newTask.textContent = task.text;
+            if (task.completed) newTask.classList.add("completed");
+
+            // Done button
+            const doneButton = document.createElement("button");
+            doneButton.textContent = "Done";
+            doneButton.classList.add("done-btn");
+            doneButton.addEventListener("click", () => {
+                newTask.classList.toggle("completed");
+                task.completed = !task.completed;
+                saveTasks();
+            });
+
+            // Delete/Recover button
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = isDeleted ? "Recover" : "Delete";
+            deleteButton.classList.add(isDeleted ? "recover-btn" : "delete-btn");
+            deleteButton.addEventListener("click", () => {
+                if (isDeleted) {
+                    // Recover task
+                    newTask.remove();
+                    task.deleted = false;
+                    appendTask(task, false);
+                } else {
+                    // Delete task
+                    newTask.remove();
+                    task.deleted = true;
+                    appendTask(task, true);
+                }
+                saveTasks();
+            });
+
+            newTask.appendChild(doneButton);
+            newTask.appendChild(deleteButton);
+
+            if (isDeleted) {
+                deletedList.appendChild(newTask);
+            } else {
+                todoList.appendChild(newTask);
+            }
+        }
+
+        // Save tasks to localStorage
+        function saveTasks() {
+            const tasks = [];
+            todoList.querySelectorAll('li').forEach(task => {
+                tasks.push({
+                    text: task.firstChild.textContent,
+                    completed: task.classList.contains('completed'),
+                    deleted: false
+                });
+            });
+            deletedList.querySelectorAll('li').forEach(task => {
+                tasks.push({
+                    text: task.firstChild.textContent,
+                    completed: false,
+                    deleted: true
+                });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Load tasks from localStorage
+        function loadTasks() {
+            const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            savedTasks.forEach(task => appendTask(task, task.deleted));
+        }
+    </script>
+</body>
+</html>

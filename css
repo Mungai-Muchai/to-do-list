@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.flowchart {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+}
+
+.node {
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.start {
+    background-color: #cce5ff;
+}
+
+.end {
+    background-color: #d4edda;
+}
+
+.decision {
+    position: relative;
+}
+
+.decision-branch {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
